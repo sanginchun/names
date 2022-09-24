@@ -1,27 +1,27 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { ChangeEvent, useMemo, useState } from 'react';
+import { ChangeEvent, useState } from 'react';
 
 import ROOT_DATA from '../data';
 import { CURRENT_YEAR } from '../configs';
 import { getStatByYear } from '../utils';
 
-type StatByRank = Record<RankType, StatData>;
+type StatByPeriod = Record<Period, StatData>;
 
 interface Props {
-  data: StatByRank;
+  data: StatByPeriod;
 }
 
-const RANK_TYPES: RankType[] = ['올해', '최근 3년', '최근 5년', '최근 10년'];
+const PERIOD_TYPES: Period[] = ['올해', '최근 3년', '최근 5년', '최근 10년'];
 
-const Rank: NextPage<Props> = ({ data }) => {
-  const [rankType, setRankType] = useState<RankType>('올해');
+const IndexPage: NextPage<Props> = ({ data }) => {
+  const [period, setPeriod] = useState<Period>('올해');
 
-  const handleRankTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setRankType(e.target.value as RankType);
+  const handlePeriodChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    setPeriod(e.target.value as Period);
   };
 
-  const rankTypeOptions = RANK_TYPES.map((v) => (
+  const periodOptions = PERIOD_TYPES.map((v) => (
     <option key={v} value={v}>
       {v}
     </option>
@@ -30,7 +30,7 @@ const Rank: NextPage<Props> = ({ data }) => {
   const getDisplayStat = (gender: Gender) => {
     return (
       <div>
-        {data[rankType][gender].map((v) => (
+        {data[period][gender].map((v) => (
           <div key={v.name}>
             <span>{v.name} </span>
             <span>
@@ -55,8 +55,8 @@ const Rank: NextPage<Props> = ({ data }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main>
-        <select value={rankType} onChange={handleRankTypeChange}>
-          {rankTypeOptions}
+        <select value={period} onChange={handlePeriodChange}>
+          {periodOptions}
         </select>
         <div style={{ display: 'flex' }}>
           {getDisplayStat('M')}
@@ -67,12 +67,12 @@ const Rank: NextPage<Props> = ({ data }) => {
   );
 };
 
-export default Rank;
+export default IndexPage;
 
 export async function getStaticProps() {
   const endYear = CURRENT_YEAR;
 
-  const data: StatByRank = {
+  const data: StatByPeriod = {
     올해: getStatByYear({ startYear: CURRENT_YEAR, endYear, data: ROOT_DATA }),
     '최근 3년': getStatByYear({
       startYear: CURRENT_YEAR - 2,
