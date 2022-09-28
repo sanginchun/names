@@ -1,12 +1,13 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { ChangeEvent, useState } from 'react';
+import { ChangeEvent } from 'react';
 
 import ROOT_DATA from '../data';
 import { CURRENT_YEAR } from '../configs';
 import { getStatByYear } from '../utils';
 
 import Layout from '../components/Layout';
+import useUrlQuery from '../hooks/useUrlQuery';
 
 type StatByPeriod = Record<Period, StatData>;
 
@@ -15,15 +16,39 @@ interface Props {
 }
 
 const PERIOD_TYPES: Period[] = ['올해', '최근 3년', '최근 5년', '최근 10년'];
+const DEFAULT_PERIOD: Period = '올해';
+
+const GENDER_TYPES: Gender[] = ['M', 'F'];
+const DEFAULT_GENDER: Gender = 'M';
 
 const IndexPage: NextPage<Props> = ({ data }) => {
-  const [period, setPeriod] = useState<Period>('올해');
+  const { value: period, updateQuery: updatePeriod } = useUrlQuery<Period>({
+    key: 'period',
+    defaultValue: DEFAULT_PERIOD,
+    shallow: true,
+  });
+
+  const { value: gender, updateQuery: updateGender } = useUrlQuery<Gender>({
+    key: 'gender',
+    defaultValue: DEFAULT_GENDER,
+    shallow: true,
+  });
 
   const handlePeriodChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    setPeriod(e.target.value as Period);
+    updatePeriod(e.target.value as Period);
+  };
+
+  const handleGenderChange = (e: ChangeEvent<HTMLSelectElement>) => {
+    updateGender(e.target.value as Gender);
   };
 
   const periodOptions = PERIOD_TYPES.map((v) => (
+    <option key={v} value={v}>
+      {v}
+    </option>
+  ));
+
+  const genderOptions = GENDER_TYPES.map((v) => (
     <option key={v} value={v}>
       {v}
     </option>
@@ -60,10 +85,10 @@ const IndexPage: NextPage<Props> = ({ data }) => {
         <select value={period} onChange={handlePeriodChange}>
           {periodOptions}
         </select>
-        <div style={{ display: 'flex' }}>
-          {getDisplayStat('M')}
-          {getDisplayStat('F')}
-        </div>
+        <select value={gender} onChange={handleGenderChange}>
+          {genderOptions}
+        </select>
+        <div style={{ display: 'flex' }}>{getDisplayStat(gender)}</div>
       </Layout>
     </>
   );
