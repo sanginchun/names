@@ -1,12 +1,12 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { ChangeEvent } from 'react';
 
 import ROOT_DATA from '../data';
 import { CURRENT_YEAR } from '../configs';
 import { getStatByYear } from '../utils';
 
 import Layout from '../components/Layout';
+import { Segment, Button, Divider } from 'semantic-ui-react';
 import useUrlQuery from '../hooks/useUrlQuery';
 
 type StatByPeriod = Record<Period, StatData>;
@@ -34,27 +34,44 @@ const IndexPage: NextPage<Props> = ({ data }) => {
     shallow: true,
   });
 
-  const handlePeriodChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    updatePeriod(e.target.value as Period);
+  const getHandlePeriodChange = (period: Period) => () => {
+    updatePeriod(period);
   };
 
-  const handleGenderChange = (e: ChangeEvent<HTMLSelectElement>) => {
-    updateGender(e.target.value as Gender);
+  const getHandleGenderChange = (gender: Gender) => () => {
+    updateGender(gender);
   };
 
-  const periodOptions = PERIOD_TYPES.map((v) => (
-    <option key={v} value={v}>
-      {v}
-    </option>
-  ));
+  const Genders = (
+    <Button.Group basic size="small">
+      {GENDER_TYPES.map((v) => (
+        <Button
+          key={v}
+          active={v === gender}
+          onClick={getHandleGenderChange(v)}
+        >
+          {v === 'M' ? '남자' : '여자'}
+        </Button>
+      ))}
+    </Button.Group>
+  );
 
-  const genderOptions = GENDER_TYPES.map((v) => (
-    <option key={v} value={v}>
-      {v}
-    </option>
-  ));
+  const PeriodButtons = (
+    <Button.Group basic size="small">
+      {PERIOD_TYPES.map((v) => (
+        <Button
+          key={v}
+          active={v === period}
+          onClick={getHandlePeriodChange(v)}
+        >
+          {v}
+        </Button>
+      ))}
+    </Button.Group>
+  );
 
   const getDisplayStat = (gender: Gender) => {
+    // TODO: Type Guard => display null? error?
     return (
       <div>
         {data[period][gender].map((v) => (
@@ -86,12 +103,11 @@ const IndexPage: NextPage<Props> = ({ data }) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Layout>
-        <select value={period} onChange={handlePeriodChange}>
-          {periodOptions}
-        </select>
-        <select value={gender} onChange={handleGenderChange}>
-          {genderOptions}
-        </select>
+        <Segment size="mini">
+          {Genders}
+          <Divider />
+          {PeriodButtons}
+        </Segment>
         <div style={{ display: 'flex' }}>{getDisplayStat(gender)}</div>
       </Layout>
     </>
