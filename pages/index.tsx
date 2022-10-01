@@ -22,25 +22,20 @@ const GENDER_TYPES: Gender[] = ['M', 'F'];
 const DEFAULT_GENDER: Gender = 'M';
 
 const IndexPage: NextPage<Props> = ({ data }) => {
-  const { value: period, updateQuery: updatePeriod } = useUrlQuery<Period>({
-    key: 'period',
-    defaultValue: DEFAULT_PERIOD,
-    shallow: true,
+  const { parsedValues, updateQuery } = useUrlQuery({
+    defaultValues: { period: DEFAULT_PERIOD, gender: DEFAULT_GENDER },
   });
-
-  const { value: gender, updateQuery: updateGender } = useUrlQuery<Gender>({
-    key: 'gender',
-    defaultValue: DEFAULT_GENDER,
-    shallow: true,
-  });
-
-  const getHandlePeriodChange = (period: Period) => () => {
-    updatePeriod(period);
-  };
 
   const getHandleGenderChange = (gender: Gender) => () => {
-    updateGender(gender);
+    updateQuery({ key: 'gender', value: gender });
   };
+
+  const getHandlePeriodChange = (period: Period) => () => {
+    updateQuery({ key: 'period', value: period });
+  };
+
+  const period = parsedValues['period'] as Period;
+  const gender = parsedValues['gender'] as Gender;
 
   const Genders = (
     <Button.Group basic size="small">
