@@ -1,0 +1,22 @@
+a {
+  color: inherit;
+}
+
+a:hover {
+  color: inherit;
+}
+
+.name-row:hover {
+  background-color: rgba(0, 0, 0, 0.03);
+  cursor: pointer;
+}
+
+.name-row td.name-cell {
+  padding: 0;
+}
+
+.name-row a {
+  display: block;
+  width: 100%;
+  padding: 0.78571429em 0.78571429em;
+}
