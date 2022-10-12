@@ -1,11 +1,10 @@
 import type { GetServerSideProps } from 'next';
-import { useRouter } from 'next/router';
 
 import Head from 'next/head';
 import Link from 'next/link';
 
 import Layout from '../../components/Layout';
-import { Segment, Table, Button } from 'semantic-ui-react';
+import { Segment, Table, Dropdown, Button } from 'semantic-ui-react';
 import { getStatByYear } from '../../utils';
 import { CURRENT_YEAR, START_YEAR } from '../../configs';
 
@@ -15,21 +14,43 @@ interface YearPageProps {
   data: ReturnType<typeof getStatByYear>;
 }
 
+const YEARS_OPTIONS = Array.from({ length: CURRENT_YEAR - START_YEAR }).map(
+  (_, i) => `${CURRENT_YEAR - i}`
+);
+const DEFAULT_YEAR = `${CURRENT_YEAR}`;
+
 const GENDER_TYPES: Gender[] = ['M', 'F'];
 const DEFAULT_GENDER: Gender = 'M';
 
 const YearPage = ({ data }: YearPageProps) => {
-  const router = useRouter();
-  const { year } = router.query;
-
   const { parsedValues, updateQuery } = useUrlQuery({
-    defaultValues: { gender: DEFAULT_GENDER },
+    defaultValues: { gender: DEFAULT_GENDER, year: DEFAULT_YEAR },
   });
   const gender = parsedValues['gender'] as Gender;
+  const year = parsedValues['year'];
 
   const getHandleGenderChange = (gender: Gender) => () => {
     updateQuery({ key: 'gender', value: gender });
   };
+
+  const getHandleYearChange = (year: string) => () => {
+    updateQuery({ key: 'year', value: year });
+  };
+
+  const Years = (
+    <Dropdown text={year}>
+      <Dropdown.Menu>
+        {YEARS_OPTIONS.map((year) => (
+          <Dropdown.Item
+            key={year}
+            text={year}
+            value={year}
+            onClick={getHandleYearChange(year)}
+          />
+        ))}
+      </Dropdown.Menu>
+    </Dropdown>
+  );
 
   const Genders = (
     <Button.Group basic size="small">
@@ -84,7 +105,7 @@ const YearPage = ({ data }: YearPageProps) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <Layout>
-        <Segment size="large">{`${year}년`}</Segment>
+        <Segment>{Years}</Segment>
         <Segment size="mini">{Genders}</Segment>
         {Stats}
       </Layout>
