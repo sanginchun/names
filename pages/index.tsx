@@ -3,7 +3,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 
 import { CURRENT_YEAR } from '../configs';
-import { getStatByYear } from '../utils';
+import { getStatByPeriod } from '../utils';
 
 import Layout from '../components/Layout';
 import { Segment, Button, Divider, Table } from 'semantic-ui-react';
@@ -121,16 +121,16 @@ export const getStaticProps: GetStaticProps = async () => {
   const endYear = CURRENT_YEAR;
 
   const data: StatByPeriod = {
-    올해: getStatByYear({ startYear: CURRENT_YEAR, endYear }),
-    '최근 3년': getStatByYear({
+    올해: getStatByPeriod({ startYear: CURRENT_YEAR, endYear }),
+    '최근 3년': getStatByPeriod({
       startYear: CURRENT_YEAR - 2,
       endYear,
     }),
-    '최근 5년': getStatByYear({
+    '최근 5년': getStatByPeriod({
       startYear: CURRENT_YEAR - 4,
       endYear,
     }),
-    '최근 10년': getStatByYear({
+    '최근 10년': getStatByPeriod({
       startYear: CURRENT_YEAR - 9,
       endYear,
     }),

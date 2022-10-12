@@ -1,17 +1,17 @@
 import ROOT_DATA from '../data';
 import { START_YEAR, CURRENT_YEAR } from '../configs';
 
-interface GetStatByYearParams {
+interface GetStatByPeriodParams {
   startYear: number;
   endYear: number;
 }
 
 const GENDER: Gender[] = ['M', 'F'];
 
-export const getStatByYear = ({
+export const getStatByPeriod = ({
   startYear,
   endYear,
-}: GetStatByYearParams): StatData => {
+}: GetStatByPeriodParams): StatData => {
   const stats: StatData = { M: [], F: [] };
 
   GENDER.forEach((gender) => {
@@ -59,4 +59,13 @@ export const getStatByName = ({ name, gender }: GetStatByNameParams) => {
   }
 
   return data;
+};
+
+interface GetStatByYearParams {
+  year: number;
+  gender: Gender;
+}
+
+export const getStatByYear = ({ year, gender }: GetStatByYearParams) => {
+  return ROOT_DATA[gender][year];
 };

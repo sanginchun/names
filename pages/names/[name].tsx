@@ -57,7 +57,7 @@ const NamePage = ({ data }: NamePageProps) => {
       <Layout>
         <Segment size="large">{name}</Segment>
         {Stats}
-        <Segment>순위권에 들었던 연도만 표시됩니다</Segment>
+        <Segment>상위에 들었던 연도만 표시됩니다</Segment>
       </Layout>
     </>
   );
