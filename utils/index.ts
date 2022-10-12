@@ -1,7 +1,9 @@
+import ROOT_DATA from '../data';
+import { START_YEAR, CURRENT_YEAR } from '../configs';
+
 interface GetStatByYearParams {
   startYear: number;
   endYear: number;
-  data: RootData;
 }
 
 const GENDER: Gender[] = ['M', 'F'];
@@ -9,7 +11,6 @@ const GENDER: Gender[] = ['M', 'F'];
 export const getStatByYear = ({
   startYear,
   endYear,
-  data,
 }: GetStatByYearParams): StatData => {
   const stats: StatData = { M: [], F: [] };
 
@@ -17,7 +18,7 @@ export const getStatByYear = ({
     const total: { [key: string]: NameInfo } = {};
 
     for (let year = startYear; year <= endYear; year++) {
-      data[gender][year].forEach((info) => {
+      ROOT_DATA[gender][year].forEach((info) => {
         if (total[info.name]) {
           total[info.name].count += info.count;
         } else {
@@ -34,4 +35,28 @@ export const getStatByYear = ({
   });
 
   return stats;
+};
+
+interface GetStatByNameParams {
+  name: string;
+  gender: Gender;
+}
+
+export const getStatByName = ({ name, gender }: GetStatByNameParams) => {
+  const data: Array<{
+    year: number;
+    name: string;
+    count: number;
+    rank: number | null;
+  }> = [];
+
+  for (let year = CURRENT_YEAR; year >= START_YEAR; year--) {
+    const foundData = ROOT_DATA[gender][year].find((v) => v.name === name);
+
+    if (foundData) {
+      data.push({ year, name, count: foundData.count, rank: foundData.rank });
+    }
+  }
+
+  return data;
 };

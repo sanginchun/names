@@ -1,8 +1,7 @@
-import type { NextPage } from 'next';
+import type { GetStaticProps, NextPage } from 'next';
 import Head from 'next/head';
 import Link from 'next/link';
 
-import ROOT_DATA from '../data';
 import { CURRENT_YEAR } from '../configs';
 import { getStatByYear } from '../utils';
 
@@ -66,29 +65,32 @@ const IndexPage: NextPage<Props> = ({ data }) => {
     </Button.Group>
   );
 
-  // TODO: Add Link
   const Stats = (
     <Table singleLine unstackable>
       <Table.Body>
-        {data[period][gender].map((v) => (
-          <Table.Row key={v.name} className="name-row">
-            <Table.Cell width={2} className="name-cell">
-              <Link href={`/names/${v.name}`}>
-                <a>{v.rank}</a>
-              </Link>
-            </Table.Cell>
-            <Table.Cell width={4} className="name-cell">
-              <Link href={`/names/${v.name}`}>
-                <a>{v.name}</a>
-              </Link>
-            </Table.Cell>
-            <Table.Cell width={4} className="name-cell">
-              <Link href={`/names/${v.name}`}>
-                <a>{`${v.count.toLocaleString()} 명`}</a>
-              </Link>
-            </Table.Cell>
-          </Table.Row>
-        ))}
+        {data[period][gender].map((v) => {
+          const href = `/names/${v.name}?gender=${gender}`;
+
+          return (
+            <Table.Row key={v.name} className="link-row">
+              <Table.Cell width={2} className="link-cell">
+                <Link href={href}>
+                  <a>{v.rank}</a>
+                </Link>
+              </Table.Cell>
+              <Table.Cell width={4} className="link-cell">
+                <Link href={href}>
+                  <a>{v.name}</a>
+                </Link>
+              </Table.Cell>
+              <Table.Cell width={4} className="link-cell">
+                <Link href={href}>
+                  <a>{`${v.count.toLocaleString()} 명`}</a>
+                </Link>
+              </Table.Cell>
+            </Table.Row>
+          );
+        })}
       </Table.Body>
     </Table>
   );
@@ -115,25 +117,22 @@ const IndexPage: NextPage<Props> = ({ data }) => {
 
 export default IndexPage;
 
-export async function getStaticProps() {
+export const getStaticProps: GetStaticProps = async () => {
   const endYear = CURRENT_YEAR;
 
   const data: StatByPeriod = {
-    올해: getStatByYear({ startYear: CURRENT_YEAR, endYear, data: ROOT_DATA }),
+    올해: getStatByYear({ startYear: CURRENT_YEAR, endYear }),
     '최근 3년': getStatByYear({
       startYear: CURRENT_YEAR - 2,
       endYear,
-      data: ROOT_DATA,
     }),
     '최근 5년': getStatByYear({
       startYear: CURRENT_YEAR - 4,
       endYear,
-      data: ROOT_DATA,
     }),
     '최근 10년': getStatByYear({
       startYear: CURRENT_YEAR - 9,
       endYear,
-      data: ROOT_DATA,
     }),
   };
   return {
@@ -141,4 +140,4 @@ export async function getStaticProps() {
       data,
     },
   };
-}
+};
