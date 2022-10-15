@@ -1,4 +1,4 @@
-const data: RootData = {
+export const data: RootData = {
   M: {
     '2008': [
       { name: '민준', count: 2656, rank: 1, chosung: 'ㅁㅈ' },
