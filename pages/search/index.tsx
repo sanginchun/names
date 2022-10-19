@@ -4,65 +4,103 @@ import Link from 'next/link';
 import Layout from '../../components/Layout';
 import { Segment, Table, Button, Input, Message } from 'semantic-ui-react';
 
-import { useState, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import axios from 'axios';
 import useUrlQuery from '../../hooks/useUrlQuery';
 
 const GENDER_TYPES: Gender[] = ['M', 'F'];
-
-// TODO: URL query로 검색어 처리
+const DEFAULT_GENDER: Gender = 'M';
 
 const SearchPage = () => {
-  const [gender, setGender] = useState<Gender>('M');
-  const genderRef = useRef<Gender>('M');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const { parsedValues, updateQuery } = useUrlQuery({
+    defaultValues: { gender: DEFAULT_GENDER, searchTerm: '' },
+  });
+
+  const gender = parsedValues['gender'] as Gender;
+  const searchTerm = parsedValues['searchTerm'] as string;
+
+  const [genderInput, setGenderInput] = useState<Gender>(gender);
+  const [searchInput, setSearchInput] = useState(searchTerm);
+
+  const [message, setMessage] = useState('검색어를 입력하세요');
   const [isMessageWarning, setIsMessageWarning] = useState(false);
+  const [isMessageError, setIsMessageError] = useState(false);
   const [searchResult, setSearchResult] = useState<string[]>([]);
 
+  const getHandleGenderChange = (gender: Gender) => () => {
+    setGenderInput(gender);
+  };
+
   const handleSubmitSearch = async () => {
-    if (searchTerm.length === 0) {
+    if (searchInput.length === 0) {
       setMessage('검색어를 입력하세요');
       setIsMessageWarning(true);
       return;
     }
 
-    if (searchTerm.length > 2) {
+    if (searchInput.length > 2) {
       setMessage('두 글자 이하로만 검색할 수 있습니다');
       setIsMessageWarning(true);
       return;
     }
 
     if (
-      !searchTerm.split('').every((v) => v.match(/[가-힣|ㄱ-ㅎ]/g) !== null)
+      !searchInput.split('').every((v) => v.match(/[가-힣|ㄱ-ㅎ]/g) !== null)
     ) {
       setMessage('한글로만 검색할 수 있습니다');
       setIsMessageWarning(true);
       return;
     }
 
-    setIsLoading(true);
-    try {
-      const {
-        data: { result },
-      } = await axios.get<{ result: string[] }>(`/api/names`, {
-        params: { gender, searchTerm },
-      });
-
-      genderRef.current = gender;
-      setSearchResult(result);
-    } finally {
-      setMessage('');
-      setIsMessageWarning(false);
-      setIsLoading(false);
-    }
+    updateQuery([
+      { key: 'searchTerm', value: searchInput },
+      { key: 'gender', value: genderInput },
+    ]);
   };
+
+  useEffect(() => {
+    setSearchInput(searchTerm);
+    setGenderInput(gender);
+
+    if (searchTerm.length === 0) {
+      return;
+    }
+
+    if (gender !== 'M' && gender !== 'F') {
+      return;
+    }
+
+    searchNames();
+
+    async function searchNames() {
+      try {
+        const {
+          data: { result },
+        } = await axios.get<{ result: string[] }>(`/api/names`, {
+          params: { gender, searchTerm },
+        });
+
+        setSearchResult(result);
+        setMessage(`${result.length}개의 검색 결과가 있습니다`);
+        setIsMessageWarning(false);
+        setIsMessageError(false);
+      } catch {
+        setSearchResult([]);
+        setMessage('오류가 발생했습니다');
+        setIsMessageWarning(false);
+        setIsMessageError(true);
+      }
+    }
+  }, [searchTerm, gender]);
 
   const Genders = (
     <Button.Group basic size="small">
       {GENDER_TYPES.map((v) => (
-        <Button key={v} active={v === gender} onClick={() => setGender(v)}>
+        <Button
+          key={v}
+          active={v === genderInput}
+          onClick={getHandleGenderChange(v)}
+        >
           {v === 'M' ? '남자' : '여자'}
         </Button>
       ))}
@@ -73,7 +111,7 @@ const SearchPage = () => {
     <Table singleLine unstackable>
       <Table.Body>
         {searchResult.map((name) => {
-          const href = `/names/${name}?gender=${genderRef.current}`;
+          const href = `/names/${name}?gender=${gender}`;
 
           return (
             <Table.Row key={name} className="link-row">
@@ -111,31 +149,26 @@ const SearchPage = () => {
               <Input
                 fluid
                 placeholder="검색어 예시: ㅇㅇ, ㅇ준, 준ㅇ"
-                loading={isLoading}
                 size="large"
                 action={{
                   icon: 'search',
                   onClick: handleSubmitSearch,
                 }}
                 actionPosition="left"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
               />
             </div>
           </Segment>
           {message && (
             <Segment>
-              <Message warning={isMessageWarning}>{message}</Message>
+              <Message error={isMessageError} warning={isMessageWarning}>
+                {message}
+              </Message>
             </Segment>
           )}
         </Segment.Group>
-        {searchResult.length > 0 ? (
-          Stats
-        ) : (
-          <Segment>
-            <Message>검색 결과가 없습니다</Message>
-          </Segment>
-        )}
+        {searchResult.length > 0 ? Stats : null}
       </Layout>
     </>
   );

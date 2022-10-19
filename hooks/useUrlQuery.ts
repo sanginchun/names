@@ -7,6 +7,11 @@ interface Props {
   shallow?: boolean;
 }
 
+interface KeyValue {
+  key: string;
+  value: string;
+}
+
 const useUrlQuery = ({ defaultValues, shallow = false }: Props) => {
   const router = useRouter();
 
@@ -20,14 +25,19 @@ const useUrlQuery = ({ defaultValues, shallow = false }: Props) => {
     parsedValues[key] = value;
   });
 
-  const updateQuery = ({ key, value }: { key: string; value: string }) => {
-    router.push(
-      {
-        query: { ...router.query, [key]: encodeURI(value) },
-      },
-      undefined,
-      { shallow }
-    );
+  const updateQuery = (query: KeyValue | Array<KeyValue>) => {
+    const nextQuery = { ...router.query };
+
+    if (Array.isArray(query)) {
+      query.forEach(({ key, value }) => {
+        nextQuery[key] = encodeURI(value);
+      });
+    } else {
+      const { key, value } = query;
+      nextQuery[key] = encodeURI(value);
+    }
+
+    router.push({ query: nextQuery }, undefined, { shallow });
   };
 
   return {
