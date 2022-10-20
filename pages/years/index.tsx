@@ -1,4 +1,4 @@
-import type { GetServerSideProps } from 'next';
+import type { GetStaticProps } from 'next';
 
 import Link from 'next/link';
 
@@ -10,11 +10,13 @@ import { CURRENT_YEAR, START_YEAR } from '../../configs';
 
 import useUrlQuery from '../../hooks/useUrlQuery';
 
+type StatByYear = Record<string, StatData>;
+
 interface YearPageProps {
-  data: ReturnType<typeof getStatByYear>;
+  data: StatByYear;
 }
 
-const YEARS_OPTIONS = Array.from({ length: CURRENT_YEAR - START_YEAR }).map(
+const YEARS_OPTIONS = Array.from({ length: CURRENT_YEAR - START_YEAR + 1 }).map(
   (_, i) => `${CURRENT_YEAR - i}`
 );
 const DEFAULT_YEAR = `${CURRENT_YEAR}`;
@@ -66,35 +68,38 @@ const YearPage = ({ data }: YearPageProps) => {
     </Button.Group>
   );
 
-  const Stats = (
-    <Table singleLine unstackable>
-      <Table.Body>
-        {data.map((v) => {
-          const href = `/names/${v.name}?gender=${gender}`;
+  let TableRows: JSX.Element[] = [];
 
-          return (
-            <Table.Row key={v.name} className="link-row">
-              <Table.Cell width={2} className="link-cell">
-                <Link href={href}>
-                  <a>{v.rank}</a>
-                </Link>
-              </Table.Cell>
-              <Table.Cell width={4} className="link-cell">
-                <Link href={href}>
-                  <a>{v.name}</a>
-                </Link>
-              </Table.Cell>
-              <Table.Cell width={4} className="link-cell">
-                <Link href={href}>
-                  <a>{`${v.count.toLocaleString()} 명`}</a>
-                </Link>
-              </Table.Cell>
-            </Table.Row>
-          );
-        })}
-      </Table.Body>
-    </Table>
-  );
+  try {
+    TableRows = data[year][gender].map((v) => {
+      const href = `/names/${v.name}?gender=${gender}`;
+
+      return (
+        <Table.Row key={v.name} className="link-row">
+          <Table.Cell width={2} className="link-cell">
+            <Link href={href}>
+              <a>{v.rank}</a>
+            </Link>
+          </Table.Cell>
+          <Table.Cell width={4} className="link-cell">
+            <Link href={href}>
+              <a>{v.name}</a>
+            </Link>
+          </Table.Cell>
+          <Table.Cell width={4} className="link-cell">
+            <Link href={href}>
+              <a>{`${v.count.toLocaleString()} 명`}</a>
+            </Link>
+          </Table.Cell>
+        </Table.Row>
+      );
+    });
+  } catch {
+    updateQuery([
+      { key: 'gender', value: DEFAULT_GENDER },
+      { key: 'year', value: DEFAULT_YEAR },
+    ]);
+  }
 
   return (
     <>
@@ -102,7 +107,9 @@ const YearPage = ({ data }: YearPageProps) => {
       <Layout>
         <Segment>{Years}</Segment>
         <Segment size="mini">{Genders}</Segment>
-        {Stats}
+        <Table singleLine unstackable>
+          <Table.Body>{TableRows}</Table.Body>
+        </Table>
       </Layout>
     </>
   );
@@ -110,25 +117,14 @@ const YearPage = ({ data }: YearPageProps) => {
 
 export default YearPage;
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { year, gender } = context.query;
-  const yearString = year as string;
+export const getStaticProps: GetStaticProps = async () => {
+  const data: StatByYear = {};
 
-  if (+yearString < START_YEAR || +yearString > CURRENT_YEAR) {
-    return {
-      notFound: true,
-    };
-  }
-
-  if (gender !== 'M' && gender !== 'F') {
-    return {
-      notFound: true,
-    };
-  }
-
-  const data = getStatByYear({
-    year: +yearString,
-    gender: gender as Gender,
+  YEARS_OPTIONS.forEach((year) => {
+    data[year] = { M: [], F: [] };
+    GENDER_TYPES.forEach((gender) => {
+      data[year][gender] = getStatByYear({ year: +year, gender });
+    });
   });
 
   return {
