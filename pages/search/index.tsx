@@ -2,7 +2,14 @@ import Link from 'next/link';
 
 import Head from '../../components/Head';
 import Layout from '../../components/Layout';
-import { Segment, Table, Button, Input, Message } from 'semantic-ui-react';
+import {
+  Segment,
+  Table,
+  Button,
+  Input,
+  Message,
+  Placeholder,
+} from 'semantic-ui-react';
 
 import { useState, useEffect } from 'react';
 import axios from 'axios';
@@ -23,6 +30,7 @@ const SearchPage = () => {
   const [searchInput, setSearchInput] = useState(searchTerm);
 
   const [message, setMessage] = useState('검색어를 입력하세요');
+  const [isLoading, setIsLoading] = useState(false);
   const [isMessageWarning, setIsMessageWarning] = useState(false);
   const [isMessageError, setIsMessageError] = useState(false);
   const [searchResult, setSearchResult] = useState<string[]>([]);
@@ -73,6 +81,7 @@ const SearchPage = () => {
     searchNames();
 
     async function searchNames() {
+      setIsLoading(true);
       try {
         const {
           data: { result },
@@ -89,6 +98,8 @@ const SearchPage = () => {
         setMessage('오류가 발생했습니다');
         setIsMessageWarning(false);
         setIsMessageError(true);
+      } finally {
+        setIsLoading(false);
       }
     }
   }, [searchTerm, gender]);
@@ -105,6 +116,19 @@ const SearchPage = () => {
         </Button>
       ))}
     </Button.Group>
+  );
+
+  const LoadingPlaceholder = (
+    <Segment>
+      <Placeholder fluid>
+        <Placeholder.Line />
+        <Placeholder.Line />
+        <Placeholder.Line />
+        <Placeholder.Line />
+        <Placeholder.Line />
+        <Placeholder.Line />
+      </Placeholder>
+    </Segment>
   );
 
   const Stats = (
@@ -163,7 +187,11 @@ const SearchPage = () => {
             </Segment>
           )}
         </Segment.Group>
-        {searchResult.length > 0 ? Stats : null}
+        {isLoading
+          ? LoadingPlaceholder
+          : searchResult.length > 0
+          ? Stats
+          : null}
       </Layout>
     </>
   );
