@@ -1,12 +1,14 @@
-import type { GetServerSideProps } from 'next';
+import type { GetStaticPaths, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 
 import Link from 'next/link';
 
-import Head from '../../components/Head';
-import Layout from '../../components/Layout';
+import Head from '../../../components/Head';
+import Layout from '../../../components/Layout';
 import { Segment, Table } from 'semantic-ui-react';
-import { getStatByName } from '../../utils';
+import { getStatByName } from '../../../utils';
+
+import { ALL_F_NAMES } from '../../../data';
 
 interface NamePageProps {
   data: ReturnType<typeof getStatByName>;
@@ -14,13 +16,13 @@ interface NamePageProps {
 
 const NamePage = ({ data }: NamePageProps) => {
   const router = useRouter();
-  const { name, gender } = router.query;
+  const { name } = router.query;
 
   const Stats = (
     <Table singleLine unstackable>
       <Table.Body>
         {data.map((v) => {
-          const href = `/years/${v.year}?gender=${gender}`;
+          const href = `/years?year=${v.year}&gender=F`;
 
           return (
             <Table.Row key={v.year} className="link-row">
@@ -48,7 +50,7 @@ const NamePage = ({ data }: NamePageProps) => {
 
   return (
     <>
-      <Head title={`인기 이름 - ${name}`} />
+      <Head title={`여자 인기 이름 - ${name}`} />
       <Layout>
         <Segment size="large">{name}</Segment>
         {Stats}
@@ -60,18 +62,19 @@ const NamePage = ({ data }: NamePageProps) => {
 
 export default NamePage;
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const { name, gender } = context.query;
+export const getStaticPaths: GetStaticPaths = async () => {
+  return {
+    paths: ALL_F_NAMES.map((name) => ({ params: { name } })),
+    fallback: false,
+  };
+};
 
-  if (gender !== 'M' && gender !== 'F') {
-    return {
-      notFound: true,
-    };
-  }
+export const getStaticProps: GetStaticProps = async (context) => {
+  const name = context.params?.name as string;
 
   const data = getStatByName({
     name: name as string,
-    gender: gender as Gender,
+    gender: 'F',
   });
 
   return {

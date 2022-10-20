@@ -10,7 +10,7 @@ const Nav = () => {
         <Link href="/">
           <a className="header item">홈</a>
         </Link>
-        <Link href={`/years?year=${CURRENT_YEAR}?gender=M`}>
+        <Link href={`/years?year=${CURRENT_YEAR}&gender=M`}>
           <a className="header item">연도별 인기 이름</a>
         </Link>
         <Link href="/search">

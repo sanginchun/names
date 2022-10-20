@@ -72,7 +72,7 @@ const YearPage = ({ data }: YearPageProps) => {
 
   try {
     TableRows = data[year][gender].map((v) => {
-      const href = `/names/${v.name}?gender=${gender}`;
+      const href = `/names/${gender}/${v.name}`;
 
       return (
         <Table.Row key={v.name} className="link-row">

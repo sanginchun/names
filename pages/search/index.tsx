@@ -111,7 +111,7 @@ const SearchPage = () => {
     <Table singleLine unstackable>
       <Table.Body>
         {searchResult.map((name) => {
-          const href = `/names/${name}?gender=${gender}`;
+          const href = `/names/${gender}/${name}`;
 
           return (
             <Table.Row key={name} className="link-row">
@@ -129,7 +129,6 @@ const SearchPage = () => {
 
   return (
     <>
-      {/* TODO: Add more metadata */}
       <Head title="인기 이름 검색" />
       <Layout>
         <Segment.Group>

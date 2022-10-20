@@ -940,3 +940,19 @@ export const data: RootData = {
 };
 
 export default data;
+
+export const ALL_M_NAMES = Array.from(
+  new Set(
+    Object.values(data['M'])
+      .flat()
+      .map((v) => v.name)
+  )
+);
+
+export const ALL_F_NAMES = Array.from(
+  new Set(
+    Object.values(data['F'])
+      .flat()
+      .map((v) => v.name)
+  )
+);

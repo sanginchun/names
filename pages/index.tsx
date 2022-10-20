@@ -70,7 +70,7 @@ const IndexPage: NextPage<Props> = ({ data }) => {
     <Table singleLine unstackable>
       <Table.Body>
         {data[period][gender].map((v) => {
-          const href = `/names/${v.name}?gender=${gender}`;
+          const href = `/names/${gender}/${v.name}`;
 
           return (
             <Table.Row key={v.name} className="link-row">
