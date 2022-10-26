@@ -1,11 +1,14 @@
-import 'semantic-ui-css/semantic.min.css';
 import type { AppProps } from 'next/app';
-import './style.css';
 import Script from 'next/script';
+import { Analytics } from '@vercel/analytics/react';
+
+import 'semantic-ui-css/semantic.min.css';
+import './style.css';
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
     <>
+      <Component {...pageProps} />
       <Script src="https://www.googletagmanager.com/gtag/js?id=G-XNR6HNV6K6" />
       <Script id="google-analytics">
         {`
@@ -15,7 +18,6 @@ function MyApp({ Component, pageProps }: AppProps) {
           gtag('config', 'G-XNR6HNV6K6');
         `}
       </Script>
-      <Component {...pageProps} />
       <Script type="text/javascript" src="//wcs.naver.net/wcslog.js" />
       <Script type="text/javascript" id="naver-analytics">
         {`
@@ -26,6 +28,7 @@ function MyApp({ Component, pageProps }: AppProps) {
           }
         `}
       </Script>
+      <Analytics />
     </>
   );
 }
