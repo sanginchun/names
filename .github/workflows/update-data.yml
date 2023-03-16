@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Change dir and install dependencies
-      - uses: actions/checkout@v2
+        uses: actions/checkout@v2
         working-directory: crawler
         run: yarn install
       - name: Run script
