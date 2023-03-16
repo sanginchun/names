@@ -65,11 +65,23 @@ GENDERS.forEach(async (gender) => {
 
     // write to file
     if (gender === GENDERS[GENDERS.length - 1]) {
-      fs.writeFile('../data/data.json', JSON.stringify(rootData), (err) => {
+      const DATA_AS_STRING = JSON.stringify(rootData);
+
+      fs.writeFile('../data/data.json', DATA_AS_STRING, (err) => {
         if (err) {
           console.error(err);
         }
       });
+
+      fs.writeFile(
+        './data/index.js',
+        `export const rootData = ${DATA_AS_STRING}`,
+        (err) => {
+          if (err) {
+            console.error(err);
+          }
+        }
+      );
     }
   } catch (e) {
     console.log(e);
