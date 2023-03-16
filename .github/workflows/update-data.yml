@@ -1,0 +1,22 @@
+name: Update data every month
+on:
+  schedule:
+    - cron: '*/3 * * * *' # test
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Change dir and install dependencies
+      - uses: actions/checkout@v2
+        working-directory: crawler
+        run: yarn install
+      - name: Run script
+        working-directory: crawler
+        run: node index.js
+      - name: Commit changes
+        run: |
+          git config --local user.email "sanginchun91@gmail.com"
+          git config --local user.name "sanginchun"
+          git add .
+          git commit -m "Updated data"
+          git push
