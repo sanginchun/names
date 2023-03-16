@@ -1,7 +1,7 @@
-name: Update data every month
+name: Update data everyday
 on:
   schedule:
-    - cron: '*/3 * * * *' # test
+    - cron: '0 12 * * *'
 jobs:
   run:
     runs-on: ubuntu-latest
