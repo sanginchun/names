@@ -1,6 +1,6 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { data } from '../../data';
+import rootData from '../../data';
 
 type Data = {
   result: Array<string>;
@@ -22,7 +22,7 @@ export default function handler(
     return;
   }
 
-  const dataByGender = Object.values(data[gender]);
+  const dataByGender = Object.values(rootData[gender]);
   const names: string[] = [];
 
   if (searchTerm.length === 1) {
