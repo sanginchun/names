@@ -1,7 +1,7 @@
-name: Update data everyday
+name: Update data every Monday
 on:
   schedule:
-    - cron: '0 12 * * *'
+    - cron: '0 6 * * 1' # Every monday at 06:00
 jobs:
   run:
     runs-on: ubuntu-latest
@@ -18,5 +18,5 @@ jobs:
           git config --local user.email "sanginchun91@gmail.com"
           git config --local user.name "sanginchun"
           git add .
-          git commit -m "Updated data"
+          git commit -m "update data $(date -u +'%Y-%m-%d')"
           git push
